@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useLocation } from 'react-router';
+import { useParams, useLocation, useNavigate } from 'react-router';
 import PropTypes from 'prop-types';
 import { utils } from '@ohif/core';
 import { ImageViewerProvider, DragAndDropProvider } from '@ohif/ui-next';
-import { useSearchParams } from '../../hooks';
+import { useSearchParams } from '@hooks';
 import { useAppConfig } from '@state';
 import ViewportGrid from '@components/ViewportGrid';
 import Compose from './Compose';
+import { history } from '../../utils/history';
 import loadModules from '../../pluginImports';
 import { defaultRouteInit } from './defaultRouteInit';
 import { updateAuthServiceAndCleanUrl } from './updateAuthServiceAndCleanUrl';
@@ -51,6 +52,9 @@ export default function ModeRoute({
   const locationRef = useRef(null);
   const isMounted = useRef(false);
 
+  // Expose the react router dom navigation.
+  history.navigate = useNavigate();
+
   if (location !== locationRef.current) {
     layoutTemplateData.current = null;
     locationRef.current = location;
@@ -79,10 +83,10 @@ export default function ModeRoute({
     extensionManager.setActiveDataSource(dataSourceName);
   }
 
-  const dataSource = extensionManager.getActiveDataSourceOrNull();
+  const dataSource = extensionManager.getActiveDataSource()[0];
 
   // Only handling one route per mode for now
-  const route = mode.routes?.[0] ?? null;
+  const route = mode.routes[0];
 
   useEffect(() => {
     const loadExtensions = async () => {
@@ -143,17 +147,24 @@ export default function ModeRoute({
       });
 
       if (isMounted.current) {
-        const { leftPanels = [], rightPanels = [], ...layoutProps } = layoutData.props;
+        // bottomPanelsも取得
+        const {
+          leftPanels = [],
+          rightPanels = [],
+          bottomPanels = [],
+          ...layoutProps
+        } = layoutData.props;
 
         panelService.reset();
-        panelService.addPanels(panelService.PanelPosition.Left, leftPanels);
-        panelService.addPanels(panelService.PanelPosition.Right, rightPanels);
+        panelService.addPanels(panelService.PanelPosition.Left, leftPanels, {});
+        panelService.addPanels(panelService.PanelPosition.Right, rightPanels, {});
+        panelService.addPanels(panelService.PanelPosition.Bottom, bottomPanels, {});
 
-        // layoutProps contains all props but leftPanels and rightPanels
+        // layoutProps contains all props but leftPanels, rightPanels, bottomPanels
         layoutData.props = layoutProps;
 
         layoutTemplateData.current = layoutData;
-        setRefresh(!refresh);
+        setRefresh(r => !r);
       }
     };
     if (Array.isArray(studyInstanceUIDs) && studyInstanceUIDs[0]) {
