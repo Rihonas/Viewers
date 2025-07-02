@@ -47,6 +47,7 @@ import Settings from './Sources/Settings';
 import Show from './Sources/Show';
 import SidePanelCloseLeft from './Sources/SidePanelCloseLeft';
 import SidePanelCloseRight from './Sources/SidePanelCloseRight';
+import SidePanelCloseBottom from './Sources/SidePanelCloseBottom';
 import SortingAscending from './Sources/SortingAscending';
 import SocialGithub from './Sources/SocialGithub';
 import SortingDescending from './Sources/SortingDescending';
@@ -79,9 +80,6 @@ import OrientationSwitch from './Sources/OrientationSwitch';
 import LayerBackground from './Sources/LayerBackground';
 import LayerForeground from './Sources/LayerForeground';
 import LayerSegmentation from './Sources/LayerSegmentation';
-import WindowLevelAdvanced from './Sources/WindowLevelAdvanced';
-import Opacity from './Sources/Opacity';
-import Threshold from './Sources/Threshold';
 import {
   Tool3DRotate,
   ToolAngle,
@@ -487,6 +485,7 @@ export const Icons = {
   Show,
   SidePanelCloseLeft,
   SidePanelCloseRight,
+  SidePanelCloseBottom,
   SocialGithub,
   SortingAscending,
   SortingDescending,
@@ -586,9 +585,6 @@ export const Icons = {
   OHIFLogoColorDarkBackground,
   Magnifier,
   Pencil,
-  WindowLevelAdvanced,
-  Opacity,
-  Threshold,
   //
   //
   //
