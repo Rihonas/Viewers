@@ -45,6 +45,7 @@ import { ScrollArea, ScrollBar } from './ScrollArea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './Accordion';
 import { Icons } from './Icons';
 import { SidePanel } from './SidePanel';
+import { BottomPanel } from './BottomPanel';
 import { StudyItem } from './StudyItem';
 import { StudyBrowser } from './StudyBrowser';
 import { StudyBrowserSort } from './StudyBrowserSort';
@@ -117,7 +118,6 @@ import {
   ToolButtonListItem,
   ToolButtonListDivider,
 } from './ToolButton';
-import { LayoutSelector } from './LayoutSelector';
 import { ToolSettings } from './OHIFToolSettings';
 export { DataRow } from './DataRow';
 export { MeasurementTable } from './MeasurementTable';
@@ -190,6 +190,7 @@ export {
   AccordionTrigger,
   Icons,
   SidePanel,
+  BottomPanel,
   StudyItem,
   StudyBrowser,
   StudyBrowserSort,
@@ -269,5 +270,4 @@ export {
   ProgressLoadingBar,
   ViewportDialog,
   CinePlayer,
-  LayoutSelector
 };
