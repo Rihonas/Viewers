@@ -1,5 +1,4 @@
 /** @type {AppTypes.Config} */
-
 window.config = {
   name: 'config/default.js',
   routerBasename: null,
@@ -293,3 +292,39 @@ window.config = {
   //   },
   // },
 };
+// window.config = {
+//   routerBasename: null,
+//   extensions: [],
+//   modes: [],
+//   showStudyList: true,
+//   dataSources: [
+//     {
+//       namespace: '@ohif/extension-default.dataSourcesModule.dicomweb',
+//       sourceName: 'dicomweb',
+//       configuration: {
+//         friendlyName: 'DICOMCloud Server',
+//         name: 'dcomcloud',
+//         wadoUriRoot: 'http://172.18.73.121:8099/wadouri',
+//         qidoRoot: 'http://172.18.73.121:8099/api',
+//         wadoRoot: 'http://172.18.73.121:8099/api',
+//         qidoSupportsIncludeField: true,
+//         supportsReject: true,
+//         imageRendering: 'wadors',
+//         thumbnailRendering: 'wadors',
+//         enableStudyLazyLoad: true,
+//         supportsFuzzyMatching: true,
+//         supportsWildcard: true,
+//         omitQuotationForMultipartRequest: true,
+//         requestOptions: {
+//           auth: options => {
+//             return 'Basic YXJyYXk6YXJyYXk=';
+//           },
+//         },
+//         queryParams: {
+//           limit: 12,
+//         },
+//       },
+//     },
+//   ],
+//   defaultDataSourceName: 'dicomweb',
+// };
