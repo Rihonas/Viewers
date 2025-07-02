@@ -68,6 +68,7 @@ const extensionDependencies = {
   '@ohif/extension-cornerstone-dicom-rt': '^3.0.0',
   '@ohif/extension-dicom-pdf': '^3.0.1',
   '@ohif/extension-dicom-video': '^3.0.1',
+  // customLayoutExtension: '/extensions/customLayoutExtension.js',
 };
 
 function modeFactory({ modeConfiguration }) {
@@ -90,8 +91,8 @@ function modeFactory({ modeConfiguration }) {
       // Init Default and SR ToolGroups
       initToolGroups(extensionManager, toolGroupService, commandsManager);
 
-      toolbarService.register(toolbarButtons);
-      toolbarService.updateSection(toolbarService.sections.primary, [
+      toolbarService.addButtons(toolbarButtons);
+      toolbarService.createButtonSection('primary', [
         'MeasurementTools',
         'Zoom',
         'Pan',
@@ -103,34 +104,7 @@ function modeFactory({ modeConfiguration }) {
         'MoreTools',
       ]);
 
-      toolbarService.updateSection(toolbarService.sections.viewportActionMenu.topLeft, [
-        'orientationMenu',
-        'dataOverlayMenu',
-      ]);
-
-      toolbarService.updateSection(toolbarService.sections.viewportActionMenu.bottomMiddle, [
-        'AdvancedRenderingControls',
-      ]);
-
-      toolbarService.updateSection('AdvancedRenderingControls', [
-        'windowLevelMenuEmbedded',
-        'voiManualControlMenu',
-        'Colorbar',
-        'opacityMenu',
-        'thresholdMenu',
-      ]);
-
-      toolbarService.updateSection(toolbarService.sections.viewportActionMenu.topRight, [
-        'modalityLoadBadge',
-        'trackingStatus',
-        'navigationComponent',
-      ]);
-
-      toolbarService.updateSection(toolbarService.sections.viewportActionMenu.bottomLeft, [
-        'windowLevelMenu',
-      ]);
-
-      toolbarService.updateSection('MeasurementTools', [
+      toolbarService.createButtonSection('measurementSection', [
         'Length',
         'Bidirectional',
         'ArrowAnnotate',
@@ -142,7 +116,7 @@ function modeFactory({ modeConfiguration }) {
         'LivewireContour',
       ]);
 
-      toolbarService.updateSection('MoreTools', [
+      toolbarService.createButtonSection('moreToolsSection', [
         'Reset',
         'rotate-right',
         'flipHorizontal',
@@ -244,11 +218,15 @@ function modeFactory({ modeConfiguration }) {
           return {
             id: ohif.layout,
             props: {
-              leftPanels: [tracked.thumbnailList],
-              leftPanelResizable: true,
+              // leftPanels: [tracked.thumbnailList],
+              // leftPanelResizable: true,
+              // leftPanelClosed: false,
               rightPanels: [cornerstone.segmentation, tracked.measurements],
-              rightPanelClosed: true,
+              rightPanelClosed: false,
               rightPanelResizable: true,
+              bottomPanels: [tracked.thumbnailList],
+              bottomPanelResizable: true,
+              bottomPanelClosed: false,
               viewports: [
                 {
                   namespace: tracked.viewport,
