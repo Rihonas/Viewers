@@ -6,6 +6,7 @@ import { HangingProtocolService, CommandsManager } from '@ohif/core';
 import { useAppConfig } from '@state';
 import ViewerHeader from './ViewerHeader';
 import SidePanelWithServices from '../Components/SidePanelWithServices';
+import BottomPanelWithServices from '../Components/BottomPanelWithServices';
 import { Onboarding, ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@ohif/ui-next';
 import useResizablePanels from './ResizablePanelsHook';
 
@@ -24,6 +25,8 @@ function ViewerLayout({
   rightPanelClosed = false,
   leftPanelResizable = false,
   rightPanelResizable = false,
+  bottomPanelClosed = false,
+  bottomPanelResizable = false,
 }: withAppTypes): React.FunctionComponent {
   const [appConfig] = useAppConfig();
 
@@ -39,23 +42,44 @@ function ViewerLayout({
   const [hasLeftPanels, setHasLeftPanels] = useState(hasPanels('left'));
   const [leftPanelClosedState, setLeftPanelClosed] = useState(leftPanelClosed);
   const [rightPanelClosedState, setRightPanelClosed] = useState(rightPanelClosed);
+  const [bottomPanelClosedState, setBottomPanelClosed] = useState(bottomPanelClosed);
+  const [hasBottomPanels, setHasBottomPanels] = useState(hasPanels('bottom'));
 
+  // useResizablePanelsの返り値をグループごとに分割
   const [
-    leftPanelProps,
-    rightPanelProps,
-    resizablePanelGroupProps,
-    resizableLeftPanelProps,
-    resizableViewportGridPanelProps,
-    resizableRightPanelProps,
-    onHandleDragging,
+    horizontalPanelGroupProps,
+    verticalPanelGroupProps,
+    onHorizontalHandleDragging,
+    onVerticalHandleDragging,
   ] = useResizablePanels(
     leftPanelClosed,
     setLeftPanelClosed,
     rightPanelClosed,
     setRightPanelClosed,
+    bottomPanelClosed,
+    setBottomPanelClosed,
     hasLeftPanels,
-    hasRightPanels
+    hasRightPanels,
+    hasBottomPanels
   );
+
+  // 水平グループのprops展開
+  const [
+    leftPanelProps = {},
+    rightPanelProps = {},
+    horizontalGroup = {},
+    resizableLeftPanelProps = {},
+    resizableViewportGridPanelProps = {},
+    resizableRightPanelProps = {},
+  ] = Array.isArray(horizontalPanelGroupProps) ? horizontalPanelGroupProps : [];
+
+  // 垂直グループのprops展開
+  const [
+    bottomPanelProps = {},
+    verticalGroup = {},
+    horizontalPanelGroupWrapperProps = {},
+    resizableBottomPanelProps = {},
+  ] = Array.isArray(verticalPanelGroupProps) ? verticalPanelGroupProps : [];
 
   const handleMouseEnter = () => {
     (document.activeElement as HTMLElement)?.blur();
@@ -125,11 +149,15 @@ function ViewerLayout({
       ({ options }) => {
         setHasLeftPanels(hasPanels('left'));
         setHasRightPanels(hasPanels('right'));
+        setHasBottomPanels(hasPanels('bottom'));
         if (options?.leftPanelClosed !== undefined) {
           setLeftPanelClosed(options.leftPanelClosed);
         }
         if (options?.rightPanelClosed !== undefined) {
           setRightPanelClosed(options.rightPanelClosed);
+        }
+        if (options?.bottomPanelClosed !== undefined) {
+          setBottomPanelClosed(options.bottomPanelClosed);
         }
       }
     );
@@ -151,57 +179,88 @@ function ViewerLayout({
       />
       <div
         className="relative flex w-full flex-row flex-nowrap items-stretch overflow-hidden bg-black"
-        style={{ height: 'calc(100vh - 52px' }}
+        style={{ height: 'calc(100vh - 52px)' }}
       >
         <React.Fragment>
           {showLoadingIndicator && <LoadingIndicatorProgress className="h-full w-full bg-black" />}
-          <ResizablePanelGroup {...resizablePanelGroupProps}>
-            {/* LEFT SIDEPANELS */}
-            {hasLeftPanels ? (
-              <>
-                <ResizablePanel {...resizableLeftPanelProps}>
-                  <SidePanelWithServices
-                    side="left"
-                    isExpanded={!leftPanelClosedState}
-                    servicesManager={servicesManager}
-                    {...leftPanelProps}
-                  />
+          {/* 垂直グループでラップ */}
+          <ResizablePanelGroup
+            {...verticalGroup}
+            direction="vertical"
+          >
+            {/* 上部: 水平グループ */}
+            <ResizablePanel {...horizontalPanelGroupWrapperProps}>
+              <ResizablePanelGroup
+                {...horizontalGroup}
+                direction="horizontal"
+              >
+                {/* LEFT SIDEPANELS */}
+                {hasLeftPanels ? (
+                  <>
+                    <ResizablePanel {...resizableLeftPanelProps}>
+                      <SidePanelWithServices
+                        side="left"
+                        isExpanded={!leftPanelClosedState}
+                        servicesManager={servicesManager}
+                        {...leftPanelProps}
+                      />
+                    </ResizablePanel>
+                    <ResizableHandle
+                      onDragging={onHorizontalHandleDragging}
+                      disabled={!leftPanelResizable}
+                      className={resizableHandleClassName}
+                    />
+                  </>
+                ) : null}
+                {/* TOOLBAR + GRID */}
+                <ResizablePanel {...resizableViewportGridPanelProps}>
+                  <div className="flex h-full flex-1 flex-col">
+                    <div
+                      className="relative flex h-full flex-1 items-center justify-center overflow-hidden bg-black"
+                      onMouseEnter={handleMouseEnter}
+                    >
+                      <ViewportGridComp
+                        servicesManager={servicesManager}
+                        viewportComponents={viewportComponents}
+                        commandsManager={commandsManager}
+                      />
+                    </div>
+                  </div>
                 </ResizablePanel>
-                <ResizableHandle
-                  onDragging={onHandleDragging}
-                  disabled={!leftPanelResizable}
-                  className={resizableHandleClassName}
-                />
-              </>
-            ) : null}
-            {/* TOOLBAR + GRID */}
-            <ResizablePanel {...resizableViewportGridPanelProps}>
-              <div className="flex h-full flex-1 flex-col">
-                <div
-                  className="relative flex h-full flex-1 items-center justify-center overflow-hidden bg-black"
-                  onMouseEnter={handleMouseEnter}
-                >
-                  <ViewportGridComp
-                    servicesManager={servicesManager}
-                    viewportComponents={viewportComponents}
-                    commandsManager={commandsManager}
-                  />
-                </div>
-              </div>
+                {hasRightPanels ? (
+                  <>
+                    <ResizableHandle
+                      onDragging={onHorizontalHandleDragging}
+                      disabled={!rightPanelResizable}
+                      className={resizableHandleClassName}
+                    />
+                    <ResizablePanel {...resizableRightPanelProps}>
+                      <SidePanelWithServices
+                        side="right"
+                        isExpanded={!rightPanelClosedState}
+                        servicesManager={servicesManager}
+                        {...rightPanelProps}
+                      />
+                    </ResizablePanel>
+                  </>
+                ) : null}
+              </ResizablePanelGroup>
             </ResizablePanel>
-            {hasRightPanels ? (
+            {/* 下部: bottomパネル */}
+            {hasBottomPanels ? (
               <>
                 <ResizableHandle
-                  onDragging={onHandleDragging}
-                  disabled={!rightPanelResizable}
+                  direction="vertical"
+                  onDragging={onVerticalHandleDragging}
+                  disabled={!bottomPanelResizable}
                   className={resizableHandleClassName}
                 />
-                <ResizablePanel {...resizableRightPanelProps}>
-                  <SidePanelWithServices
-                    side="right"
-                    isExpanded={!rightPanelClosedState}
+                <ResizablePanel {...resizableBottomPanelProps}>
+                  <BottomPanelWithServices
+                    //side="bottom"
+                    isExpanded={!bottomPanelClosedState}
                     servicesManager={servicesManager}
-                    {...rightPanelProps}
+                    {...bottomPanelProps}
                   />
                 </ResizablePanel>
               </>
@@ -225,8 +284,10 @@ ViewerLayout.propTypes = {
   // From modes
   leftPanels: PropTypes.array,
   rightPanels: PropTypes.array,
+  bottomPanels: PropTypes.array,
   leftPanelClosed: PropTypes.bool.isRequired,
   rightPanelClosed: PropTypes.bool.isRequired,
+  bottomPanelClosed: PropTypes.bool.isRequired,
   /** Responsible for rendering our grid of viewports; provided by consuming application */
   children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]).isRequired,
   viewports: PropTypes.array,

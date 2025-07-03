@@ -102,30 +102,57 @@ window.config = {
       namespace: '@ohif/extension-default.dataSourcesModule.dicomweb',
       sourceName: 'dicomweb',
       configuration: {
-        friendlyName: 'AWS S3 Static wado server',
-        name: 'aws',
-        wadoUriRoot: 'https://d14fa38qiwhyfd.cloudfront.net/dicomweb',
-        qidoRoot: 'https://d14fa38qiwhyfd.cloudfront.net/dicomweb',
-        wadoRoot: 'https://d14fa38qiwhyfd.cloudfront.net/dicomweb',
-        qidoSupportsIncludeField: false,
+        friendlyName: 'DICOMCloud Server',
+        name: 'dcomcloud',
+        wadoUriRoot: 'http://172.18.73.121:8099/wadouri',
+        qidoRoot: 'http://172.18.73.121:8099/api',
+        wadoRoot: 'http://172.18.73.121:8099/api',
+        qidoSupportsIncludeField: true,
+        supportsReject: true,
         imageRendering: 'wadors',
         thumbnailRendering: 'wadors',
         enableStudyLazyLoad: true,
         supportsFuzzyMatching: true,
-        supportsWildcard: false,
-        staticWado: true,
-        singlepart: 'bulkdata,video',
-        // whether the data source should use retrieveBulkData to grab metadata,
-        // and in case of relative path, what would it be relative to, options
-        // are in the series level or study level (some servers like series some study)
-        bulkDataURI: {
-          enabled: true,
-          relativeResolution: 'studies',
-          transform: url => url.replace('/pixeldata.mp4', '/rendered'),
-        },
+        supportsWildcard: true,
         omitQuotationForMultipartRequest: true,
+        requestOptions: {
+          auth: options => {
+            return 'Basic YXJyYXk6YXJyYXk=';
+          },
+        },
+        queryParams: {
+          limit: 12,
+        },
       },
     },
+    // {
+    //   namespace: '@ohif/extension-default.dataSourcesModule.dicomweb',
+    //   sourceName: 'dicomweb',
+    //   configuration: {
+    //     friendlyName: 'AWS S3 Static wado server',
+    //     name: 'aws',
+    //     wadoUriRoot: 'https://d14fa38qiwhyfd.cloudfront.net/dicomweb',
+    //     qidoRoot: 'https://d14fa38qiwhyfd.cloudfront.net/dicomweb',
+    //     wadoRoot: 'https://d14fa38qiwhyfd.cloudfront.net/dicomweb',
+    //     qidoSupportsIncludeField: false,
+    //     imageRendering: 'wadors',
+    //     thumbnailRendering: 'wadors',
+    //     enableStudyLazyLoad: true,
+    //     supportsFuzzyMatching: true,
+    //     supportsWildcard: false,
+    //     staticWado: true,
+    //     singlepart: 'bulkdata,video',
+    //     // whether the data source should use retrieveBulkData to grab metadata,
+    //     // and in case of relative path, what would it be relative to, options
+    //     // are in the series level or study level (some servers like series some study)
+    //     bulkDataURI: {
+    //       enabled: true,
+    //       relativeResolution: 'studies',
+    //       transform: url => url.replace('/pixeldata.mp4', '/rendered'),
+    //     },
+    //     omitQuotationForMultipartRequest: true,
+    //   },
+    // },
 
     {
       namespace: '@ohif/extension-default.dataSourcesModule.dicomweb',

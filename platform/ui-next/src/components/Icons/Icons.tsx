@@ -47,7 +47,9 @@ import Settings from './Sources/Settings';
 import Show from './Sources/Show';
 import SidePanelCloseLeft from './Sources/SidePanelCloseLeft';
 import SidePanelCloseRight from './Sources/SidePanelCloseRight';
-import SidePanelCloseBottom from './Sources/SidePanelCloseBottom';
+//import SidePanelCloseBottom from './Sources/SidePanelCloseBottom';
+import BottomPanelOpen from './Sources/BottomPanelOpen';
+import BottomPanelClose from './Sources/BottomPanelClose';
 import SortingAscending from './Sources/SortingAscending';
 import SocialGithub from './Sources/SocialGithub';
 import SortingDescending from './Sources/SortingDescending';
@@ -485,7 +487,9 @@ export const Icons = {
   Show,
   SidePanelCloseLeft,
   SidePanelCloseRight,
-  SidePanelCloseBottom,
+  //SidePanelCloseBottom,
+  BottomPanelOpen,
+  BottomPanelClose,
   SocialGithub,
   SortingAscending,
   SortingDescending,

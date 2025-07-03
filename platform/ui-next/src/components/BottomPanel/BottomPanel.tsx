@@ -4,21 +4,35 @@ import { Icons } from '../Icons';
 import { TooltipTrigger, TooltipContent, Tooltip } from '../Tooltip';
 import { Separator } from '../Separator';
 
+/**
+ * BottomPanel component properties.
+ * Note that the component monitors changes to the various heights and border sizes and will resize dynamically
+ * @property {boolean} isExpanded - boolean indicating if the bottom panel is expanded/open or collapsed
+ * @property {number} expandedHeight - the height of this bottom panel when expanded not including any borders or margins
+ * @property {number} collapsedHeight - the height of this bottom panel when collapsed not including any borders or margins
+ * @property {number} expandedInsideBorderSize - the height of the space between the expanded bottom panel content and viewport grid
+ * @property {number} collapsedInsideBorderSize - the height of the space between the collapsed bottom panel content and the viewport grid
+ * @property {number} collapsedOutsideBorderSize - the height of the space between the collapsed bottom panel content and the edge of the browser window
+ */
 type BottomPanelProps = {
-  //side: 'bottom';
   className: string;
   activeTabIndex: number;
   onOpen: () => void;
   onClose: () => void;
-  // onActiveTabIndexChange: () => void;
   onActiveTabIndexChange: (args: { activeTabIndex: number }) => void;
   isExpanded: boolean;
   expandedHeight?: number;
   collapsedHeight?: number;
-  expandedInsideBorderSize: number;
-  collapsedInsideBorderSize: number;
-  collapsedOutsideBorderSize: number;
-  tabs: any;
+  expandedInsideBorderSize?: number;
+  collapsedInsideBorderSize?: number;
+  collapsedOutsideBorderSize?: number;
+  tabs: Array<{
+    name: string;
+    label: string;
+    iconName: string;
+    disabled?: boolean;
+    content: React.ComponentType;
+  }>;
 };
 
 type StyleMap = {
@@ -36,28 +50,13 @@ type StyleMap = {
     };
   };
 };
-// const closeIconWidth = 30;
+
 const closeIconHeight = 30;
-//const gridHorizontalPadding = 10;
 const gridVerticalPadding = 10;
-// const tabSpacerWidth = 2;
 const tabSpacerHeight = 2;
 
 const baseClasses = 'bg-black border-black justify-start box-content flex flex-col';
 
-const openStateIconName = {
-  // left: 'SidePanelCloseLeft',
-  // right: 'SidePanelCloseRight',
-  bottom: 'SidePanelCloseBottom',
-};
-
-// const getTabWidth = (numTabs: number) => {
-//   if (numTabs < 3) {
-//     return 68;
-//   } else {
-//     return 40;
-//   }
-// };
 const getTabHeight = (numTabs: number) => {
   if (numTabs < 3) {
     return 28;
@@ -66,16 +65,6 @@ const getTabHeight = (numTabs: number) => {
   }
 };
 
-// const getGridWidth = (numTabs: number, gridAvailableWidth: number) => {
-//   const spacersWidth = (numTabs - 1) * tabSpacerWidth;
-//   const tabsWidth = getTabWidth(numTabs) * numTabs;
-
-//   if (gridAvailableWidth > tabsWidth + spacersWidth) {
-//     return tabsWidth + spacersWidth;
-//   }
-
-//   return gridAvailableWidth;
-// };
 const getGridHeight = (numTabs: number, gridAvailableHeight: number) => {
   const spacersHeight = (numTabs - 1) * tabSpacerHeight;
   const tabsHeight = getTabHeight(numTabs) * numTabs;
@@ -87,25 +76,6 @@ const getGridHeight = (numTabs: number, gridAvailableHeight: number) => {
   return gridAvailableHeight;
 };
 
-// const getNumGridColumns = (numTabs: number, gridWidth: number) => {
-//   if (numTabs === 1) {
-//     return 1;
-//   }
-
-//   // Start by calculating the number of tabs assuming each tab was accompanied by a spacer.
-//   const tabWidth = getTabWidth(numTabs);
-//   const numTabsWithOneSpacerEach = Math.floor(gridWidth / (tabWidth + tabSpacerWidth));
-
-//   // But there is always one less spacer than tabs, so now check if an extra tab with one less spacer fits.
-//   if (
-//     (numTabsWithOneSpacerEach + 1) * tabWidth + numTabsWithOneSpacerEach * tabSpacerWidth <=
-//     gridWidth
-//   ) {
-//     return numTabsWithOneSpacerEach + 1;
-//   }
-
-//   return numTabsWithOneSpacerEach;
-// };
 const getNumGridRows = (numTabs: number, gridHeight: number) => {
   if (numTabs === 1) {
     return 1;
@@ -127,7 +97,6 @@ const getNumGridRows = (numTabs: number, gridHeight: number) => {
 };
 
 const getTabClassNames = (
-  // numColumns: number,
   numRows: number,
   numTabs: number,
   tabIndex: number,
@@ -142,7 +111,6 @@ const getTabClassNames = (
 
 const getTabStyle = (numTabs: number) => {
   return {
-    // width: `${getTabWidth(numTabs)}px`,
     height: `${getTabHeight(numTabs)}px`,
   };
 };
@@ -155,15 +123,12 @@ const getTabIconClassNames = (numTabs: number, isActiveTab: boolean) => {
 };
 
 const createStyleMap = (
-  // expandedWidth: number,
   expandedHeight: number,
   expandedInsideBorderSize: number,
-  // collapsedWidth: number,
   collapsedHeight: number,
   collapsedInsideBorderSize: number,
   collapsedOutsideBorderSize: number
 ): StyleMap => {
-  // const collapsedHideWidth = expandedWidth - collapsedWidth - collapsedOutsideBorderSize;
   const collapsedHideHeight = expandedHeight - collapsedHeight - collapsedOutsideBorderSize;
 
   return {
@@ -189,42 +154,16 @@ const getToolTipContent = (label: string, disabled: boolean) => {
   );
 };
 
-// const createBaseStyle = (expandedWidth: number) => {
-//   return {
-//     maxWidth: `${expandedWidth}px`,
-//     width: `${expandedWidth}px`,
-//     // To align the top of the side panel with the top of the viewport grid, use position relative and offset the
-//     // top by the same top offset as the viewport grid. Also adjust the height so that there is no overflow.
-//     position: 'relative',
-//     top: '0.2%',
-//     height: '99.8%',
-//   };
-// };
-const createBaseStyle = (
-  // expandedWidth: number,
-  expandedHeight: number
-  //side: 'bottom'
-) => {
-  // if (side === 'bottom') {
+const createBaseStyle = (expandedHeight: number) => {
   return {
     maxHeight: `${expandedHeight}px`,
     height: `${expandedHeight}px`,
-    width: '99.8%',
-    position: 'relative' as React.CSSProperties['position'],
-    left: '0.2%',
+    position: 'relative' as const,
+    width: '100%',
   };
-  // }
-  // return {
-  //   maxWidth: `${expandedWidth}px`,
-  //   width: `${expandedWidth}px`,
-  //   position: 'relative',
-  //   top: '0.2%',
-  //   height: '99.8%',
-  // };
 };
 
 const BottomPanel = ({
-  // side = 'bottom', // デフォルト値を追加
   className,
   activeTabIndex: activeTabIndexProp,
   isExpanded,
@@ -243,10 +182,8 @@ const BottomPanel = ({
 
   const [styleMap, setStyleMap] = useState(
     createStyleMap(
-      // expandedWidth
       expandedHeight,
       expandedInsideBorderSize,
-      // collapsedWidth,
       collapsedHeight,
       collapsedInsideBorderSize,
       collapsedOutsideBorderSize
@@ -255,14 +192,10 @@ const BottomPanel = ({
 
   const [baseStyle, setBaseStyle] = useState(createBaseStyle(expandedHeight));
 
-  // const [gridAvailableWidth, setGridAvailableWidth] = useState(
-  //   expandedWidth - closeIconWidth - gridHorizontalPadding
-  // );
   const [gridAvailableHeight, setGridAvailableHeight] = useState(
     expandedHeight - closeIconHeight - gridVerticalPadding
   );
 
-  // const [gridWidth, setGridWidth] = useState(getGridWidth(tabs.length, gridAvailableWidth));
   const [gridHeight, setGridHeight] = useState(getGridHeight(tabs.length, gridAvailableHeight));
   const openStatus = panelOpen ? 'open' : 'closed';
   const style = Object.assign({}, styleMap[openStatus]['bottom'], baseStyle);
@@ -313,17 +246,13 @@ const BottomPanel = ({
     );
     setBaseStyle(createBaseStyle(expandedHeight));
 
-    // const gridAvailableWidth = expandedWidth - closeIconWidth - gridHorizontalPadding;
-    // setGridAvailableWidth(gridAvailableWidth);
-    // setGridWidth(getGridWidth(tabs.length, gridAvailableWidth));
-
     const gridAvailableHeight = expandedHeight - closeIconHeight - gridVerticalPadding;
     setGridAvailableHeight(gridAvailableHeight);
     setGridHeight(getGridHeight(tabs.length, gridAvailableHeight));
   }, [
     collapsedInsideBorderSize,
-    expandedHeight,
     collapsedHeight,
+    expandedHeight,
     expandedInsideBorderSize,
     tabs.length,
     collapsedOutsideBorderSize,
@@ -337,20 +266,24 @@ const BottomPanel = ({
     const _childComponents = Array.isArray(tabs) ? tabs : [tabs];
     return (
       <>
-        <div
-          className={classnames(
-            'bg-secondary-dark flex h-[28px] w-full cursor-pointer items-center justify-end rounded-md pr-2' //: 'justify-start pl-2'
-          )}
-          onClick={() => {
-            updatePanelOpen(!panelOpen);
-          }}
-          data-cy={`side-panel-header-bottom`}
-        >
-          <Icons.NavigationPanelReveal
-            className={classnames('text-primary', !panelOpen && 'rotate-180 transform')}
-          />
+        <div className={classnames('bg-secondary-dark relative flex h-[28px] w-full rounded-md')}>
+          {/* 右上固定の開閉ボタン */}
+          <div
+            className={classnames(
+              'absolute top-0 right-0 flex cursor-pointer items-center justify-center'
+            )}
+            style={{ height: `${closeIconHeight}px`, width: `${closeIconHeight}px` }}
+            onClick={() => {
+              updatePanelOpen(!panelOpen);
+            }}
+            data-cy={`bottom-panel-header`}
+          >
+            {React.createElement(Icons['BottomPanelOpen'] || Icons.MissingIcon, {
+              className: 'text-primary',
+            })}
+          </div>
         </div>
-        <div className={classnames('mt-3 flex flex-col space-y-3')}>
+        <div className={classnames('mt-3 flex flex-row justify-center space-x-3')}>
           {_childComponents.map((childComponent, index) => (
             <Tooltip key={index}>
               <TooltipTrigger>
@@ -374,12 +307,8 @@ const BottomPanel = ({
                   })}
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <div
-                  className={classnames(
-                    'flex items-center justify-end' // : 'justify-start'
-                  )}
-                >
+              <TooltipContent side="top">
+                <div className={classnames('flex items-center justify-center')}>
                   {getToolTipContent(childComponent.label, childComponent.disabled)}
                 </div>
               </TooltipContent>
@@ -391,19 +320,21 @@ const BottomPanel = ({
   };
 
   const getCloseIcon = () => {
+    // パネルの開閉状態に応じてアイコンを選択
+    const iconName = panelOpen ? 'BottomPanelClose' : 'BottomPanelOpen';
+
     return (
       <div
         className={classnames(
-          'absolute top-0 flex cursor-pointer items-center justify-center'
-          //side === 'left' ? 'right-0' : 'left-0'
+          'absolute top-0 right-0 flex cursor-pointer items-center justify-center'
         )}
-        style={{ height: `${closeIconHeight}px` }} //{{ width: `${closeIconWidth}px` }}
+        style={{ height: `${closeIconHeight}px`, width: `${closeIconHeight}px` }}
         onClick={() => {
           updatePanelOpen(!panelOpen);
         }}
         data-cy={`bottom-panel-header`}
       >
-        {React.createElement(Icons[openStateIconName['bottom']] || Icons.MissingIcon, {
+        {React.createElement(Icons[iconName] || Icons.MissingIcon, {
           className: 'text-primary',
         })}
       </div>
@@ -411,7 +342,6 @@ const BottomPanel = ({
   };
 
   const getTabGridComponent = () => {
-    // const numCols = getNumGridColumns(tabs.length, gridWidth);
     const numRows = getNumGridRows(tabs.length, gridHeight);
 
     return (
@@ -424,20 +354,14 @@ const BottomPanel = ({
               return (
                 <React.Fragment key={tabIndex}>
                   {tabIndex % numRows !== 0 && (
-                    <div
-                      className={classnames(
-                        'flex h-[28px] w-[2px] items-center bg-black',
-                        tabSpacerHeight //tabSpacerWidth
-                      )}
-                    >
-                      <div className="bg-primary-dark h-[20px] w-full"></div>
+                    <div className={classnames('flex h-[2px] w-[28px] items-center bg-black')}>
+                      <div className="bg-primary-dark h-full w-[20px]"></div>
                     </div>
                   )}
                   <Tooltip key={tabIndex}>
                     <TooltipTrigger>
                       <div
                         className={getTabClassNames(
-                          //numCols,
                           numRows,
                           tabs.length,
                           tabIndex,
@@ -466,7 +390,7 @@ const BottomPanel = ({
                         </div>
                       </div>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom">
+                    <TooltipContent side="top">
                       {getToolTipContent(tab.label, disabled)}
                     </TooltipContent>
                   </Tooltip>
@@ -502,8 +426,8 @@ const BottomPanel = ({
         </div>
         <Separator
           orientation="horizontal"
-          className="h-[2px] bg-black"
-          // thickness="2px"
+          className="bg-black"
+          thickness="2px"
         />
       </>
     );
