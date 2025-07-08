@@ -3,6 +3,7 @@ import { calculateSUVScalingFactors } from '@cornerstonejs/calculate-suv';
 
 import getPTImageIdInstanceMetadata from './getPTImageIdInstanceMetadata';
 import { registerHangingProtocolAttributes } from './hangingprotocols';
+import { HotkeysManager } from '@ohif/core'
 
 const metadataProvider = classes.MetadataProvider;
 
@@ -11,16 +12,17 @@ const metadataProvider = classes.MetadataProvider;
  * @param {Object} servicesManager
  * @param {Object} configuration
  */
-export default function init({
-  servicesManager,
-  configuration = {},
-  commandsManager,
-}: withAppTypes): void {
+export default function init({ servicesManager, commandsManager, hotkeysManager }: withAppTypes): void {
   const { toolbarService, cineService, viewportGridService } = servicesManager.services;
 
   toolbarService.registerEventForToolbarUpdate(cineService, [
     cineService.EVENTS.CINE_STATE_CHANGED,
   ]);
+
+  toolbarService.registerEventForToolbarUpdate(hotkeysManager, [
+    HotkeysManager.EVENTS.HOTKEY_PRESSED,
+  ]);
+
   // Add
   DicomMetadataStore.subscribe(DicomMetadataStore.EVENTS.INSTANCES_ADDED, handleScalingModules);
 
@@ -52,10 +54,10 @@ export default function init({
   toolbarService.subscribe(toolbarService.EVENTS.TOOL_BAR_MODIFIED, state => {
     const { buttons } = state;
     for (const [id, button] of Object.entries(buttons)) {
-      const { groupId, items, listeners } = button.props || {};
+      const { buttonSection, items, listeners } = button.props || {};
 
       // Handle group items' listeners
-      if (groupId && items) {
+      if (buttonSection && items) {
         items.forEach(item => {
           if (item.listeners) {
             subscribeToEvents(item.listeners);
