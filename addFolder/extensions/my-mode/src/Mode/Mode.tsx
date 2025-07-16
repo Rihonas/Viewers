@@ -7,30 +7,39 @@ import { useSearchParams } from '@hooks';
 import { useAppConfig } from '@state';
 import ViewportGrid from '@components/ViewportGrid';
 import Compose from './Compose';
-import { history } from '../../utils/history';
-import loadModules from '../../pluginImports';
+import { modeFactory } from 'my-mode';
 import { defaultRouteInit } from './defaultRouteInit';
 import { updateAuthServiceAndCleanUrl } from './updateAuthServiceAndCleanUrl';
 
 const { getSplitParam } = utils;
 
 export default function ModeRoute({
-  mode,
+  mode: modeConfiguration,
   dataSourceName,
   extensionManager,
   servicesManager,
   commandsManager,
   hotkeysManager,
-}: withAppTypes) {
+}: {
+  mode: any;
+  dataSourceName?: string;
+  extensionManager: any;
+  servicesManager: any;
+  commandsManager: any;
+  hotkeysManager: any;
+}) {
   const [appConfig] = useAppConfig();
+  const navigate = useNavigate();
 
   // Parse route params/querystring
   const location = useLocation();
 
-  // The react router DOM placeholder map (see https://reactrouter.com/en/main/hooks/use-params).
+  // The react router DOM placeholder map
   const params = useParams();
   // The URL's query search parameters where the keys casing is maintained
   const query = useSearchParams();
+
+  const mode = modeFactory({ modeConfiguration });
 
   mode?.onModeInit?.({
     servicesManager,
@@ -44,16 +53,12 @@ export default function ModeRoute({
   const lowerCaseSearchParams = useSearchParams({ lowerCaseKeys: true });
 
   const [studyInstanceUIDs, setStudyInstanceUIDs] = useState(null);
-
   const [refresh, setRefresh] = useState(false);
   const [ExtensionDependenciesLoaded, setExtensionDependenciesLoaded] = useState(false);
 
   const layoutTemplateData = useRef(false);
   const locationRef = useRef(null);
   const isMounted = useRef(false);
-
-  // Expose the react router dom navigation.
-  history.navigate = useNavigate();
 
   if (location !== locationRef.current) {
     layoutTemplateData.current = null;
@@ -90,10 +95,16 @@ export default function ModeRoute({
 
   useEffect(() => {
     const loadExtensions = async () => {
-      const loadedExtensions = await loadModules(Object.keys(extensions));
+      const loadedExtensions = await Promise.all(
+        Object.keys(extensions).map(async extensionId => {
+          const extension = await extensionManager.getExtension(extensionId);
+          return { id: extensionId, ...extension };
+        })
+      );
+
       for (const extension of loadedExtensions) {
         const { id: extensionId } = extension;
-        if (extensionManager.registeredExtensionIds.indexOf(extensionId) === -1) {
+        if (!extensionManager.registeredExtensionIds.includes(extensionId)) {
           await extensionManager.registerExtension(extension);
         }
       }

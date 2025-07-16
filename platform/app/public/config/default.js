@@ -5,7 +5,7 @@ window.config = {
   routerBasename: null,
   // whiteLabeling: {},
   extensions: [],
-  modes: [],
+  modes: ['my-mode'],
   customizationService: {},
   showStudyList: true,
   // some windows systems have issues with more than 3 web workers
@@ -102,6 +102,33 @@ window.config = {
     {
       namespace: '@ohif/extension-default.dataSourcesModule.dicomweb',
       sourceName: 'dicomweb',
+      configuration: {
+        friendlyName: 'DICOMCloud Server',
+        name: 'dcomcloud',
+        wadoUriRoot: 'http://172.18.73.121:8099/wadouri',
+        qidoRoot: 'http://172.18.73.121:8099/api',
+        wadoRoot: 'http://172.18.73.121:8099/api',
+        qidoSupportsIncludeField: true,
+        supportsReject: true,
+        imageRendering: 'wadors',
+        thumbnailRendering: 'wadors',
+        enableStudyLazyLoad: true,
+        supportsFuzzyMatching: true,
+        supportsWildcard: true,
+        omitQuotationForMultipartRequest: true,
+        requestOptions: {
+          auth: options => {
+            return 'Basic YXJyYXk6YXJyYXk=';
+          },
+        },
+        queryParams: {
+          limit: 12,
+        },
+      },
+    },
+    {
+      namespace: '@ohif/extension-default.dataSourcesModule.dicomweb',
+      sourceName: 'dicomweb2',
       configuration: {
         friendlyName: 'AWS S3 Static wado server',
         name: 'aws',

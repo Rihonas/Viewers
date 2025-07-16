@@ -203,6 +203,8 @@ module.exports = (env, argv, { SRC_DIR, ENTRY }) => {
         '@state': path.resolve(__dirname, '../platform/app/src/state'),
         'dicom-microscopy-viewer':
           'dicom-microscopy-viewer/dist/dynamic-import/dicomMicroscopyViewer.min.js',
+        'my-mode': path.resolve(__dirname, '../addFolder/my-mode/src'),
+        '@ohif/extension-my-mode': path.resolve(__dirname, '../addFolder/extensions/my-mode/src'),
       },
       // Which directories to search when resolving modules
       modules: [
